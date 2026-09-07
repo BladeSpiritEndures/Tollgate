@@ -48,6 +48,22 @@ It returns a fixed JSON response for normal requests and four fixed SSE frames
 when `stream` is `true`, so authentication, scanning, routing, and audit
 changes can be tested without calling a real model provider.
 
+For local DynamoDB development, use the official AWS image:
+
+```
+docker compose up -d dynamodb
+export AWS_ACCESS_KEY_ID=fake AWS_SECRET_ACCESS_KEY=fake
+export AWS_DEFAULT_REGION=ap-southeast-2
+./scripts/create-local-tables.sh
+aws dynamodb list-tables --endpoint-url http://localhost:8000
+```
+
+The container uses `-inMemory` and `-sharedDb`: data disappears when the
+container stops, and all clients share the same local database. The keys table
+uses the SHA-256 `key_hash` as its partition key; raw API keys are never stored.
+This local emulator does not perform real TTL expiration, so TTL behavior must
+be verified against AWS before production.
+
 ## API contract
 
 | Method | Path                   | Auth                        | Notes                                  |
